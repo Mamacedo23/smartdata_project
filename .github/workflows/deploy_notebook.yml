@@ -18,7 +18,7 @@ jobs:
         ORIGIN_HOST=${{ secrets.DATABRICKS_ORIGIN_HOST }}
         ORIGIN_TOKEN=${{ secrets.DATABRICKS_ORIGIN_TOKEN }}
         NOTEBOOK_BASE="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso"
-        NOTEBOOKS=("0.Preparacion_Ambiente" "1.Bronze_Ingestion" "1. Silver_transform_products" "2. Silver_transform_persons" "3. Silver_transform_sales" "1. Gold_Load_products" "2. Gold_Load_persons" "3. Gold_Load_sales")  # Agrega todos los Notebooks, están separados por un espacio.
+        NOTEBOOKS=("0.Preparacion_Ambiente" "1.Bronze_Ingestion" "1.Silver_transform_products" "2.Silver_transform_persons" "3.Silver_transform_sales" "1.Gold_Load_products" "2.Gold_Load_persons" "3.Gold_Load_sales")  # Agrega todos los Notebooks, están separados por un espacio.
         mkdir -p notebooks_to_deploy
         for nb in "${NOTEBOOKS[@]}"; do
           echo "Exportando $nb en modo raw..."
