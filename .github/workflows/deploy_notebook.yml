@@ -87,7 +87,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        CLUSTER_NAME="cluster_SD"
+        CLUSTER_NAME="Serverless"
         
         echo "Buscando cluster existente: $CLUSTER_NAME"
         
@@ -142,7 +142,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {},
@@ -171,7 +171,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {},
@@ -197,7 +197,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -222,7 +222,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -247,7 +247,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -272,7 +272,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -297,7 +297,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -322,7 +322,7 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -352,30 +352,13 @@ jobs:
                 "catalog": "smartdata_project",
                 "source": "GIT"
               },
-              "job_cluster_key": "serverless_cluster",
+              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {},
               "environment_key": "dbt-default"
             }
           ],
-          "job_clusters": [
-            {
-              "job_cluster_key": "serverless_cluster",
-              "new_cluster": {
-                "spark_version": "13.3.x-scala2.12",
-                "node_type_id": "Standard_D4ds_v4",
-                "driver_node_type_id": "Standard_D4ds_v4",
-                "num_workers": 0,
-                "data_security_mode": "SINGLE_USER",
-                "runtime_engine": "STANDARD",
-                "custom_tags": {
-                  "environment": "production",
-                  "team": "data-engineering"
-                }
-              }
-            }
-          ]
           "schedule": {
             "quartz_cron_expression": "0 0 8 * * ?",
             "timezone_id": "America/Lima",
