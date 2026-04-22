@@ -18,7 +18,7 @@ jobs:
         ORIGIN_HOST=${{ secrets.DATABRICKS_ORIGIN_HOST }}
         ORIGIN_TOKEN=${{ secrets.DATABRICKS_ORIGIN_TOKEN }}
         NOTEBOOK_BASE="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso"
-        NOTEBOOKS=("0.Preparacion_Ambiente" "1.Bronze_Ingestion" "1.Silver_transform_products" "2.Silver_transform_persons" "3.Silver_transform_sales" "1.Gold_Load_products" "2.Gold_Load_persons" "3.Gold_Load_sales")  # Agrega todos los Notebooks, están separados por un espacio.
+        NOTEBOOKS=("0.Preparacion_Ambiente" "1.Bronze_Ingestion" "1.Silver_transform_products" "2.Silver_transform_persons" "3.Silver_transform_sales" "1.Gold_Load_products" "2.Gold_Load_persons" "3.Gold_Load_sales")
         mkdir -p notebooks_to_deploy
         for nb in "${NOTEBOOKS[@]}"; do
           echo "Exportando $nb en modo raw..."
@@ -63,12 +63,10 @@ jobs:
         
         echo "Verificando si existe el workflow: $WORKFLOW_NAME"
         
-        # Listar todos los workflows y buscar por nombre
         workflows_response=$(curl -s -X GET \
           -H "Authorization: Bearer $DEST_TOKEN" \
           "$DEST_HOST/api/2.1/jobs/list")
         
-        # Extraer job_id si existe el workflow
         existing_job_id=$(echo "$workflows_response" | jq -r --arg name "$WORKFLOW_NAME" '.jobs[]? | select(.settings.name == $name) | .job_id')
         
         if [ "$existing_job_id" != "" ] && [ "$existing_job_id" != "null" ]; then
@@ -83,45 +81,14 @@ jobs:
           echo "No se encontró workflow existente con nombre: $WORKFLOW_NAME"
         fi
     
-    - name: Get existing cluster ID
-      run: |
-        DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
-        DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        CLUSTER_NAME="Serverless"
-        
-        echo "Buscando cluster existente: $CLUSTER_NAME"
-        
-        # Obtener lista de clusters
-        clusters_response=$(curl -s -X GET \
-          -H "Authorization: Bearer $DEST_TOKEN" \
-          "$DEST_HOST/api/2.0/clusters/list")
-        
-        echo "Clusters response: $clusters_response"
-        
-        # Extraer cluster_id del cluster especificado
-        cluster_id=$(echo "$clusters_response" | jq -r --arg name "$CLUSTER_NAME" '.clusters[]? | select(.cluster_name == $name) | .cluster_id')
-        
-        if [ "$cluster_id" != "" ] && [ "$cluster_id" != "null" ]; then
-          echo "✅ Cluster encontrado: $CLUSTER_NAME con ID: $cluster_id"
-          echo "CLUSTER_ID=$cluster_id" >> $GITHUB_ENV
-        else
-          echo "❌ No se encontró el cluster: $CLUSTER_NAME"
-          echo "Clusters disponibles:"
-          echo "$clusters_response" | jq -r '.clusters[]? | .cluster_name'
-          exit 1
-        fi
-    
     - name: Create Databricks Workflow WF_ADB
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/PrepAmb/"
-        CLUSTER_ID="${{ env.CLUSTER_ID }}"
         
-        echo "Creando workflow: WF_ADB con cluster existente ID: $CLUSTER_ID"
+        echo "Creando workflow: WF_ADB con Serverless compute"
         
-        # Crear el JSON del workflow usando cluster existente
-        cat > workflow_config.json << EOF
+        cat > workflow_config.json << 'EOF'
         {
           "name": "WF_ADB",
           "format": "MULTI_TASK",
@@ -142,7 +109,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {},
@@ -171,7 +137,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {},
@@ -197,7 +162,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -222,7 +186,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -247,7 +210,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -272,7 +234,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -297,7 +258,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -322,7 +282,6 @@ jobs:
                 },
                 "source": "WORKSPACE"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {}
@@ -352,7 +311,6 @@ jobs:
                 "catalog": "smartdata_project",
                 "source": "GIT"
               },
-              "existing_cluster_id": "$CLUSTER_ID"
               "timeout_seconds": 0,
               "email_notifications": {},
               "webhook_notifications": {},
@@ -376,12 +334,11 @@ jobs:
             "environment": "production",
             "created_by": "github_actions",
             "project": "automated_deployment",
-            "cluster_used": "cluster_SD"
+            "compute": "serverless"
           }
         }
         EOF
         
-        # Crear el workflow
         create_response=$(curl -s -X POST \
           -H "Authorization: Bearer $DEST_TOKEN" \
           -H "Content-Type: application/json" \
@@ -390,13 +347,12 @@ jobs:
         
         echo "Workflow creation response: $create_response"
         
-        # Extraer job_id del response
         job_id=$(echo "$create_response" | jq -r '.job_id')
         
         if [ "$job_id" != "" ] && [ "$job_id" != "null" ]; then
           echo "✅ Workflow 'WF_ADB' creado exitosamente con ID: $job_id"
+          echo "WORKFLOW_JOB_ID=$job_id" >> $GITHUB_ENV
           
-          # Obtener detalles del workflow creado
           workflow_details=$(curl -s -X GET \
             -H "Authorization: Bearer $DEST_TOKEN" \
             "$DEST_HOST/api/2.1/jobs/get?job_id=$job_id")
@@ -417,7 +373,6 @@ jobs:
         
         echo "🔍 Validando la configuración del workflow creado..."
         
-        # Obtener lista de workflows y encontrar el recién creado
         workflows_list=$(curl -s -X GET \
           -H "Authorization: Bearer $DEST_TOKEN" \
           "$DEST_HOST/api/2.1/jobs/list")
@@ -427,7 +382,6 @@ jobs:
         if [ "$job_id" != "" ] && [ "$job_id" != "null" ]; then
           echo "✅ Workflow encontrado con ID: $job_id"
           
-          # Obtener configuración detallada
           job_details=$(curl -s -X GET \
             -H "Authorization: Bearer $DEST_TOKEN" \
             "$DEST_HOST/api/2.1/jobs/get?job_id=$job_id")
@@ -437,11 +391,9 @@ jobs:
           echo "Número de tareas: $(echo "$job_details" | jq '.settings.tasks | length')"
           echo ""
           echo "📝 Tareas configuradas:"
-          echo "$job_details" | jq -r '.settings.tasks[] | "- " + .task_key + " → " + .notebook_task.notebook_path'
+          echo "$job_details" | jq -r '.settings.tasks[] | "- " + .task_key + " → " + (.notebook_task.notebook_path // "(dbt task)")'
           echo ""
-          echo "🖥️  Cluster configurado:"
-          echo "Cluster ID: $(echo "$job_details" | jq -r '.settings.tasks[0].existing_cluster_id')"
-          echo "Cluster Name: cluster_SD (reutilizado)"
+          echo "⚡ Compute: Serverless"
           
         else
           echo "❌ No se pudo encontrar el workflow creado"
@@ -456,7 +408,6 @@ jobs:
         
         echo "🚀 Ejecutando workflow: $WORKFLOW_NAME"
         
-        # Obtener job_id del workflow
         workflows_list=$(curl -s -X GET \
           -H "Authorization: Bearer $DEST_TOKEN" \
           "$DEST_HOST/api/2.1/jobs/list")
@@ -466,7 +417,6 @@ jobs:
         if [ "$job_id" != "" ] && [ "$job_id" != "null" ]; then
           echo "✅ Workflow encontrado con ID: $job_id"
           
-          # Ejecutar el workflow
           run_response=$(curl -s -X POST \
             -H "Authorization: Bearer $DEST_TOKEN" \
             -H "Content-Type: application/json" \
@@ -480,10 +430,7 @@ jobs:
             echo "Run ID: $run_id"
             echo "WORKFLOW_RUN_ID=$run_id" >> $GITHUB_ENV
             echo "WORKFLOW_JOB_ID=$job_id" >> $GITHUB_ENV
-            
-            # Mostrar URL del workflow en ejecución
             echo "🔗 URL del workflow: $DEST_HOST/jobs/$job_id/runs/$run_id"
-            
           else
             echo "❌ Error al ejecutar el workflow"
             echo "Response: $run_response"
@@ -505,13 +452,11 @@ jobs:
         echo "Job ID: $JOB_ID"
         echo "Run ID: $RUN_ID"
         
-        # Monitorear por máximo 10 minutos (600 segundos)
         max_wait_time=600
         wait_time=0
         check_interval=30
         
         while [ $wait_time -lt $max_wait_time ]; do
-          # Obtener estado actual
           run_status=$(curl -s -X GET \
             -H "Authorization: Bearer $DEST_TOKEN" \
             "$DEST_HOST/api/2.1/jobs/runs/get?run_id=$RUN_ID")
@@ -520,21 +465,16 @@ jobs:
           result_state=$(echo "$run_status" | jq -r '.state.result_state // "RUNNING"')
           
           echo "⏱️  Estado actual: $state ($result_state) - Tiempo transcurrido: ${wait_time}s"
-          
-          # Mostrar progreso de las tareas
           echo "$run_status" | jq -r '.tasks[]? | "  📋 " + .task_key + ": " + .state.life_cycle_state + " (" + (.state.result_state // "RUNNING") + ")"'
           
           case "$state" in
             "TERMINATED")
               if [ "$result_state" = "SUCCESS" ]; then
                 echo "🎉 ¡Workflow completado exitosamente!"
-                
-                # Mostrar resumen final
                 echo ""
                 echo "📈 Resumen de ejecución:"
                 echo "$run_status" | jq -r '.tasks[]? | "✅ " + .task_key + " → " + (.state.result_state // "SUCCESS")'
                 
-                # Obtener duración
                 start_time=$(echo "$run_status" | jq -r '.start_time')
                 end_time=$(echo "$run_status" | jq -r '.end_time')
                 if [ "$start_time" != "null" ] && [ "$end_time" != "null" ]; then
@@ -545,7 +485,6 @@ jobs:
                 exit 0
               else
                 echo "❌ Workflow terminó con errores: $result_state"
-                echo "📋 Detalles de las tareas:"
                 echo "$run_status" | jq -r '.tasks[]? | "❌ " + .task_key + ": " + (.state.result_state // "UNKNOWN")'
                 exit 1
               fi
@@ -555,7 +494,6 @@ jobs:
               exit 1
               ;;
             *)
-              # Estados: PENDING, RUNNING, TERMINATING
               echo "⏳ Workflow aún ejecutándose..."
               ;;
           esac
@@ -579,12 +517,10 @@ jobs:
         echo "🎉 ¡Despliegue y ejecución completados exitosamente!"
         echo ""
         echo "📊 Resumen:"
-        echo "✅ Notebooks desplegados: ntbk_1, ntbk_2"
+        echo "✅ Notebooks desplegados"
         echo "✅ Workflow creado: WF_ADB"
-        echo "✅ Tareas configuradas:"
-        echo "   - tarea1_notebook1 (ntbk_1)"
-        echo "   - tarea2_notebook2 (ntbk_2)"
-        echo "✅ Cluster existente: cluster_SD configurado"
+        echo "✅ Tareas configuradas: 9 tareas (PrepAmb → Bronze → Silver/Gold → dbt)"
+        echo "⚡ Compute: Serverless"
         echo "🚀 Workflow ejecutado automáticamente"
         echo ""
         echo "🔗 Accede a tu workspace de Databricks para ver los resultados detallados"
