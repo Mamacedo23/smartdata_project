@@ -97,7 +97,7 @@ jobs:
               "task_key": "PrepAmb",
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/0.Preparacion_Ambiente.ipynb",
+                "notebook_path": "/Workspace/smartdata_project/proceso/0.Preparacion_Ambiente.ipynb",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "raw_name": "raw",
@@ -123,7 +123,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/1.Bronze_Ingestion",
+                "notebook_path": "/Workspace/smartdata_project/proceso/1.Bronze_Ingestion",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_sink": "bronze",
@@ -151,7 +151,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/3. Silver_transform_sales",
+                "notebook_path": "/Workspace/smartdata_project/proceso/3.Silver_transform_sales",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_source": "bronze",
@@ -175,7 +175,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/3. Gold_Load_sales",
+                "notebook_path": "/Workspace/smartdata_project/proceso/3.Gold_Load_sales",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_source": "silver",
@@ -199,7 +199,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/2. Silver_transform_persons",
+                "notebook_path": "/Workspace/smartdata_project/proceso/2.Silver_transform_persons",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_source": "bronze",
@@ -223,7 +223,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/2. Gold_Load_persons",
+                "notebook_path": "//Workspace/smartdata_project/proceso/2.Gold_Load_persons",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_source": "silver",
@@ -247,7 +247,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/1. Silver_transform_products",
+                "notebook_path": "/Workspace/smartdata_project/proceso/1.Silver_transform_products",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_source": "bronze",
@@ -271,7 +271,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/1. Gold_Load_products",
+                "notebook_path": "/Workspace/smartdata_project/proceso/1.Gold_Load_products",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_source": "silver",
