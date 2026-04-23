@@ -111,7 +111,8 @@ jobs:
               },
               "timeout_seconds": 0,
               "email_notifications": {},
-              "webhook_notifications": {}
+              "webhook_notifications": {},
+              "environment_key": "Raw_ingestion_environment"
             },
             {
               "task_key": "Bronze_ingestion",
@@ -138,7 +139,8 @@ jobs:
               },
               "timeout_seconds": 0,
               "email_notifications": {},
-              "webhook_notifications": {}
+              "webhook_notifications": {},
+              "environment_key": "Raw_ingestion_environment"
             },
             {
               "task_key": "Silver_Sales",
@@ -311,9 +313,32 @@ jobs:
               },
               "timeout_seconds": 0,
               "email_notifications": {},
-              "webhook_notifications": {}
+              "webhook_notifications": {},
+              "environment_key": "dbt-default"
             }
           ],
+          "git_source": {
+            "git_url": "https://github.com/Mamacedo23/smart_data_dbt.git",
+            "git_provider": "gitHub",
+            "git_branch": "main"
+          },
+          "environments": [
+            {
+              "environment_key": "Raw_ingestion_environment",
+              "spec": {
+                "environment_version": "5"
+              }
+            },
+            {
+              "environment_key": "dbt-default",
+              "spec": {
+                "dependencies": [
+                  "dbt-databricks>=1.0.0,<2.0.0"
+                ],
+                "environment_version": "5"
+              }
+            }
+          ]
           "schedule": {
             "quartz_cron_expression": "0 0 8 * * ?",
             "timezone_id": "America/Lima",
