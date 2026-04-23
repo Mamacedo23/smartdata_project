@@ -111,8 +111,7 @@ jobs:
               },
               "timeout_seconds": 0,
               "email_notifications": {},
-              "webhook_notifications": {},
-              "environment_key": "Raw_ingestion_environment"
+              "webhook_notifications": {}
             },
             {
               "task_key": "Bronze_ingestion",
@@ -139,8 +138,7 @@ jobs:
               },
               "timeout_seconds": 0,
               "email_notifications": {},
-              "webhook_notifications": {},
-              "environment_key": "Raw_ingestion_environment"
+              "webhook_notifications": {}
             },
             {
               "task_key": "Silver_Sales",
@@ -313,8 +311,7 @@ jobs:
               },
               "timeout_seconds": 0,
               "email_notifications": {},
-              "webhook_notifications": {},
-              "environment_key": "dbt-default"
+              "webhook_notifications": {}
             }
           ],
           "schedule": {
