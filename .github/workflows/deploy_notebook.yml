@@ -247,7 +247,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "//Workspace/smartdata_project/proceso/2.Gold_Load_persons",
+                "notebook_path": "/Workspace/smartdata_project/proceso/2.Gold_Load_persons",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "schema_source": "silver",
@@ -355,7 +355,7 @@ jobs:
               ],
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/1.Update_watermarks",
+                "notebook_path": "/Workspace/smartdata_project/proceso/1.Update_watermarks",
                 "base_parameters": {
                   "products_date": "{{tasks.Gold_products.values.products_date}}",
                   "sales_date": "{{tasks.Gold_Sales.values.sales_date}}",
