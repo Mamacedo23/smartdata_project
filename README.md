@@ -1,4 +1,4 @@
-# ETL DE VENTAS, PRODUCTOS Y PERSONAS
+# Job ETL de Retail en Databricks + CI/CD + Dbt
 
 Arquitectura Medallion en Azure Databricks
 
