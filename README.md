@@ -1,10 +1,49 @@
-# smartdata_project
+# ETL DE VENTAS, PRODUCTOS Y PERSONAS
 
-Pipeline de ingeniería de datos construido sobre **Azure Databricks** con **Unity Catalog**, implementando la **Arquitectura Medallion** (Bronze → Silver → Gold) para el procesamiento incremental de ventas, productos y personas.
+Arquitectura Medallion en Azure Databricks
+
+Pipeline automatizado de datos para el análisis de ventas por producto, canal de pago y cliente, implementando una arquitectura de tres capas con despliegue continuo y materialización de dimensiones históricas.
 
 ---
 
-## Arquitectura
+## 🎯 Descripción
+
+Pipeline ETL que transforma datos crudos de ventas diarias, catálogos de productos y registros de personas, implementando la **Arquitectura Medallion (Bronze → Silver → Gold)** en Azure Databricks con Unity Catalog, CI/CD completo vía GitHub Actions y Delta Lake para garantizar consistencia ACID. La capa final incluye materialización de **SCD Type 2** mediante dbt.
+
+---
+
+## ✨ Características Principales
+
+* 🔄 **ETL Automatizado** — Pipeline completo con despliegue automático vía GitHub Actions en cada push a `main`
+* 🏗️ **Arquitectura Medallion** — Separación clara de capas Bronze → Silver → Gold
+* 📦 **Ingestión Incremental** — Autoloader con `cloudFiles` para ventas y MERGE con watermarks para productos y personas
+* 📸 **SCD Type 2** — Materialización de snapshots históricos mediante dbt sobre Unity Catalog
+* ⚡ **Delta Lake** — Transacciones ACID, time travel y merge incremental en todas las capas
+* 🔐 **Unity Catalog** — Gobierno de datos centralizado con permisos gestionados por notebooks
+* 🚀 **Serverless Compute** — Workflow optimizado con `PERFORMANCE_OPTIMIZED` y trigger por llegada de archivos
+* 📧 **Monitoreo** — Notificaciones automáticas por email en éxito y fallo
+
+---
+
+## 🏛️ Arquitectura
+
+### Flujo de Datos
+
+#### 📂 CSV Diarios en ADLS (Raw Data) + Federated SQL Catalog
+    ↓
+#### 🟤 Bronze Layer (Ingesta incremental sin transformación)
+    ↓
+#### 🥈 Silver Layer (Limpieza, validación y estandarización)
+    ↓
+#### 🥇 Gold Layer (Tablas analíticas con MERGE incremental)
+    ↓
+#### 📸 dbt Snapshots (SCD Type 2 — dimensiones históricas)
+    ↓
+#### 📊 BI & Análisis
+
+---
+
+### Diagrama completo
 
 ```
 Azure Data Lake Storage (ADLS)          Federated SQL Catalog
@@ -12,90 +51,95 @@ Azure Data Lake Storage (ADLS)          Federated SQL Catalog
            │                                       │
            └──────────────┬────────────────────────┘
                           ▼
-                   [ Bronze Layer ]
-                  Autoloader + MERGE
-                          │
-           ┌──────────────┼──────────────┐
-           ▼              ▼              ▼
-     Silver Sales   Silver Persons  Silver Products
-    (limpiezas +   (limpiezas +    (limpiezas +
-     validaciones)  validaciones)   validaciones)
-           │              │              │
-           ▼              ▼              ▼
-      Gold Sales     Gold Persons   Gold Products
-     (SCD + merge)  (SCD + merge)  (SCD + merge)
-           └──────────────┼──────────────┘
+                ┌─────────────────────┐
+                │  0. PrepAmb         │  Catalogs, schemas, volumes
+                └─────────┬───────────┘
                           ▼
-               [ dbt — Snapshot Materialization ]
-               (SCD Type 2 sobre Unity Catalog)
+                ┌─────────────────────┐
+                │  1. Bronze Layer    │  Autoloader + MERGE + watermarks
+                └──────┬──────┬───────┘
+               ┌───────┘      └───────┐
+               ▼                      ▼
+    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+    │  Silver Sales   │    │ Silver Persons  │    │ Silver Products │
+    └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+             ▼                      ▼                       ▼
+    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+    │   Gold Sales    │    │  Gold Persons   │    │  Gold Products  │
+    └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+             └──────────────────────┼───────────────────────┘
+                                    ▼
+                      ┌─────────────────────────┐
+                      │  dbt Snapshot (SCD T2)  │
+                      └─────────────────────────┘
 ```
 
 ---
 
-## Estructura del repositorio
+## 📁 Estructura del Repositorio
 
 ```
 smartdata_project/
 │
-├── proceso/                        # Notebooks del pipeline principal
-│   ├── 0.Preparacion_Ambiente      # Setup de catalogs, schemas y volumes
-│   ├── 1.Bronze_Ingestion          # Ingestión incremental (Autoloader + MERGE)
-│   ├── 1.Silver_transform_products # Transformación y calidad — productos
-│   ├── 2.Silver_transform_persons  # Transformación y calidad — personas
-│   ├── 3.Silver_transform_sales    # Transformación y calidad — ventas
-│   ├── 1.Gold_Load_products        # Carga Gold — productos
-│   ├── 2.Gold_Load_persons         # Carga Gold — personas
-│   ├── 3.Gold_Load_sales           # Carga Gold — ventas
-│   ├── drop_medallion              # Utilidad: elimina capas medallion
-│   └── grants_medallion            # Utilidad: asigna permisos sobre capas
+├── proceso/                         # Notebooks del pipeline principal
+│   ├── 0.Preparacion_Ambiente       # Setup de catalogs, schemas y volumes
+│   ├── 1.Bronze_Ingestion           # Ingestión incremental (Autoloader + MERGE)
+│   ├── 1.Silver_transform_products  # Transformación y calidad — productos
+│   ├── 2.Silver_transform_persons   # Transformación y calidad — personas
+│   ├── 3.Silver_transform_sales     # Transformación y calidad — ventas
+│   ├── 1.Gold_Load_products         # Carga Gold — productos
+│   ├── 2.Gold_Load_persons          # Carga Gold — personas
+│   ├── 3.Gold_Load_sales            # Carga Gold — ventas
+│   ├── drop_medallion               # Utilidad: elimina capas medallion
+│   └── grants_medallion             # Utilidad: asigna permisos sobre capas
 │
-├── reversion/                      # Notebooks para revertir el ambiente
-│   ├── drop_medallion
-│   └── grants_medallion
+├── reversion/                       # Notebooks para revertir el ambiente
+├── seguridad/                       # Notebooks de gestión de permisos
+├── PrepAmb/                         # Notebook standalone de preparación
 │
-├── seguridad/                      # Notebooks de gestión de permisos
-│   ├── drop_medallion
-│   └── grants_medallion
+├── datasets/                        # Archivos CSV diarios de ventas
+│   └── fact_sales_YYYY-MM-DD.csv    # 2025-01-01 → 2026-03-30 (~454 archivos)
 │
-├── PrepAmb/                        # Notebook standalone de preparación
-│   └── 0.Preparacion_Ambiente
-│
-├── datasets/                       # Archivos CSV diarios de ventas
-│   └── fact_sales_YYYY-MM-DD.csv   # 2025-01-01 → 2026-03-30 (~454 archivos)
-│
-├── watermarks.json                 # Control de marcas de agua por dominio
+├── watermarks.json                  # Marcas de agua por dominio (sales, persons, products)
 └── .github/workflows/
-    └── deploy_notebook.yml         # CI/CD: deploy automático a Databricks
+    └── deploy_notebook.yml          # CI/CD: deploy automático a Databricks
 ```
 
 ---
 
-## Capas del Medallion
+## 🗂️ Capas del Pipeline
 
-### Bronze — Ingestión incremental
-- **Ventas**: ingesta con **Autoloader** (`cloudFiles`) desde ADLS, detectando archivos CSV nuevos por llegada. Resultado en `bronze_sales`.
-- **Productos y Personas**: lectura desde **federated SQL catalog** con MERGE incremental usando watermark por fecha. Resultados en `bronze_products` y `bronze_persons`.
-- Las marcas de agua se controlan vía `watermarks.json` y se propagan como task values al resto del workflow.
+### 🟤 Bronze — Ingestión incremental
 
-### Silver — Transformación y calidad
-- Limpieza de tipos, estandarización de fechas y validaciones de integridad.
-- Deduplificación y manejo de registros nulos o inconsistentes.
-- Escritura incremental sobre tablas Delta con MERGE.
+| Dominio | Fuente | Mecanismo | Tabla destino |
+|---|---|---|---|
+| Ventas | ADLS `abfss://raw/.../sales/` | Autoloader (`cloudFiles`) | `bronze_sales` |
+| Productos | `federated_sql_catalog.source.dim_products` | MERGE + watermark | `bronze_products` |
+| Personas | `federated_sql_catalog.source.dim_persons` | MERGE + watermark | `bronze_persons` |
 
-### Gold — Capa analítica
-- Tablas optimizadas para consumo analítico y BI.
-- Integración de cambios históricos (SCD).
-- Escritura con MERGE sobre tablas Delta en el schema `gold`.
+Las marcas de agua se propagan como **task values** al resto del workflow vía `watermarks.json`.
 
-### dbt — Snapshot Materialization
-- Tarea final del workflow que ejecuta `dbt snapshot` para materializar **Slowly Changing Dimensions (SCD Type 2)** sobre Unity Catalog.
-- Fuente del proyecto dbt: [smart_data_dbt](https://github.com/Mamacedo23/smart_data_dbt)
+### 🥈 Silver — Transformación y calidad
+
+- Limpieza de tipos y estandarización de fechas
+- Validaciones de integridad y deduplicación
+- Escritura incremental sobre tablas Delta con MERGE
+
+### 🥇 Gold — Capa analítica
+
+- Tablas optimizadas para consumo analítico y BI
+- Escritura con MERGE incremental sobre tablas Delta en schema `gold`
+
+### 📸 dbt — Snapshot Materialization
+
+- Ejecuta `dbt snapshot` sobre Unity Catalog para materializar **SCD Type 2**
+- Proyecto dbt externo: [smart_data_dbt](https://github.com/Mamacedo23/smart_data_dbt)
 
 ---
 
-## Dataset de ventas
+## 📊 Dataset de Ventas
 
-Archivos diarios con el esquema:
+Archivos diarios `fact_sales_YYYY-MM-DD.csv` con cobertura **2025-01-01 → 2026-03-30** (~454 archivos):
 
 | Campo | Descripción |
 |---|---|
@@ -103,19 +147,51 @@ Archivos diarios con el esquema:
 | `created_at` | Fecha y hora de creación |
 | `end_at` | Fecha y hora de cierre |
 | `status` | Estado de la transacción |
-| `product_id` | FK a dimensión de productos |
-| `customer_id` | FK a dimensión de personas/clientes |
+| `product_id` | FK → dimensión de productos |
+| `customer_id` | FK → dimensión de clientes |
 | `quantity` | Cantidad vendida |
 | `sales_subtotal` | Monto subtotal |
-| `updated_at` | Última actualización |
-| `medio_de_pago` | Método de pago (transferencia, etc.) |
-| `bank_origin` | Banco origen del pago |
-
-Cobertura: **2025-01-01 → 2026-03-30** (~454 archivos)
+| `updated_at` | Última actualización del registro |
+| `medio_de_pago` | Método de pago (Transferencia bancaria, etc.) |
+| `bank_origin` | Banco origen (Scotiabank, Interbank, etc.) |
 
 ---
 
-## Unity Catalog
+## ⚙️ Instalación y Configuración
+
+### 1️⃣ Clonar el Repositorio
+
+```bash
+git clone https://github.com/tu-usuario/smartdata_project
+cd smartdata_project
+```
+
+### 2️⃣ Generar Tokens PAT en Databricks
+
+Para ambos workspaces (origen y destino):
+
+1. Ir al Databricks Workspace
+2. **User Settings** → **Developer** → **Access Tokens**
+3. Click en **Generate New Token**
+4. Configurar:
+   - **Comment**: `GitHub CI/CD`
+   - **Lifetime**: `90 days`
+5. ⚠️ Copiar y guardar el token generado
+
+### 3️⃣ Configurar GitHub Secrets
+
+En el repositorio: **Settings** → **Secrets and variables** → **Actions**
+
+| Secret | Descripción |
+|---|---|
+| `DATABRICKS_ORIGIN_HOST` | URL del workspace origen (ej. `https://adb-xxxxx.azuredatabricks.net`) |
+| `DATABRICKS_ORIGIN_TOKEN` | Token PAT del workspace origen |
+| `DATABRICKS_DEST_HOST` | URL del workspace destino / producción |
+| `DATABRICKS_DEST_TOKEN` | Token PAT del workspace destino |
+
+### 4️⃣ Verificar Unity Catalog
+
+El pipeline opera sobre el catálogo `smartdata_project` con la siguiente estructura:
 
 | Schema | Propósito |
 |---|---|
@@ -124,35 +200,72 @@ Cobertura: **2025-01-01 → 2026-03-30** (~454 archivos)
 | `silver` | Datos limpios y validados |
 | `gold` | Datos listos para análisis |
 
-Catálogo: `smartdata_project`
 Storage: `abfss://raw@adlssmartdataeastus2001.dfs.core.windows.net/`
 
----
-
-## CI/CD — GitHub Actions
-
-El workflow `.github/workflows/deploy_notebook.yml` se dispara en cada push a `main` y ejecuta los siguientes pasos:
-
-1. **Export** — exporta los notebooks del workspace origen en formato DBC.
-2. **Deploy** — importa los notebooks al workspace destino bajo `/Workspace/smartdata_project/proceso/`.
-3. **Delete & Recreate Workflow** — elimina el workflow anterior `smartdata_project_prod` si existe y lo crea de nuevo con la configuración actualizada.
-4. **Run** — ejecuta el workflow inmediatamente tras el despliegue.
-5. **Monitor** — monitorea el estado de la ejecución con polling cada 30s (timeout: 10 min).
-
-Credenciales requeridas en GitHub Secrets:
-
-| Secret | Descripción |
-|---|---|
-| `DATABRICKS_ORIGIN_HOST` | URL del workspace origen |
-| `DATABRICKS_ORIGIN_TOKEN` | Token PAT del workspace origen |
-| `DATABRICKS_DEST_HOST` | URL del workspace destino (producción) |
-| `DATABRICKS_DEST_TOKEN` | Token PAT del workspace destino |
+✅ **¡Configuración completa!**
 
 ---
 
-## Databricks Workflow — `smartdata_project_prod`
+## 💻 Uso
 
-El workflow usa **compute Serverless** y se dispara automáticamente por **file arrival** en ADLS.
+### 🚀 Despliegue Automático (Recomendado)
+
+```bash
+git add .
+git commit -m "feat: mejoras en pipeline"
+git push origin main
+```
+
+**GitHub Actions ejecutará automáticamente**:
+- 📤 Export de notebooks del workspace origen en formato DBC
+- 📥 Deploy de notebooks a `/Workspace/smartdata_project/proceso`
+- 🔁 Eliminación y recreación del workflow `smartdata_project_prod`
+- ▶️ Ejecución completa: PrepAmb → Bronze → Silver → Gold → dbt
+- 📧 Notificaciones de resultado por email
+
+### 🖱️ Despliegue Manual desde GitHub
+
+1. Ir al tab **Actions** en GitHub
+2. Seleccionar **Dynamic Databricks Notebook Deploy**
+3. Click en **Run workflow**
+4. Seleccionar rama `main`
+5. Click en **Run workflow**
+
+### 🔧 Ejecución Local en Databricks
+
+Navegar a `/Workspace/smartdata_project/proceso` y ejecutar en orden:
+
+```
+- 0.Preparacion_Ambiente         → Setup del ambiente
+- 1.Bronze_Ingestion             → Bronze Layer
+- 1.Silver_transform_products    → Silver Layer — productos
+- 2.Silver_transform_persons     → Silver Layer — personas
+- 3.Silver_transform_sales       → Silver Layer — ventas
+- 1.Gold_Load_products           → Gold Layer  — productos
+- 2.Gold_Load_persons            → Gold Layer  — personas
+- 3.Gold_Load_sales              → Gold Layer  — ventas
+```
+
+---
+
+## 🔄 CI/CD
+
+### Pipeline de GitHub Actions
+
+```
+Workflow: Dynamic Databricks Notebook Deploy
+├── Checkout del repositorio
+├── Export de notebooks desde workspace origen (formato DBC)
+├── Deploy de notebooks al workspace destino
+├── Eliminar workflow antiguo (si existe)
+├── Crear workflow smartdata_project_prod (Serverless)
+├── Ejecutar pipeline automáticamente
+└── Monitorear ejecución y notificar resultado
+```
+
+---
+
+## 🛠️ Workflow Databricks — `smartdata_project_prod`
 
 ```
 PrepAmb
@@ -162,6 +275,51 @@ PrepAmb
         └── Silver_products ─ Gold_products ┘
 ```
 
-- Timeout máximo: 2 horas
-- Notificaciones por email en éxito y fallo a `kevin.gonzales.m@uni.pe`
-- Performance target: `PERFORMANCE_OPTIMIZED`
+- ⚡ **Compute**: Serverless (`PERFORMANCE_OPTIMIZED`)
+- 🔔 **Trigger**: File Arrival en `abfss://raw@adlssmartdataeastus2001.dfs.core.windows.net/sales/`
+- ⏱️ **Timeout máximo**: 2 horas
+- 🔁 **Max concurrent runs**: 1
+- 📧 **Notificaciones**: éxito y fallo vía email
+
+---
+
+## 📈 Monitoreo
+
+### En Databricks
+
+**Workflows**:
+- Ir a **Workflows** en el menú lateral
+- Buscar `smartdata_project_prod`
+- Ver historial de ejecuciones y estado por tarea
+
+**Logs por Tarea**:
+- Click en una ejecución específica
+- Click en cada tarea para ver logs detallados
+- Revisar stdout/stderr en caso de errores
+
+### En GitHub Actions
+
+- Tab **Actions** del repositorio
+- Ver historial de workflows y logs por step
+- El step **Monitor Workflow Execution** reporta el estado en tiempo real con polling cada 30s
+
+---
+
+## 👤 Autor
+
+**Kevin Gonzales Muñoz**
+
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:kevin.gonzales.m@uni.pe)
+
+**Data Engineering** | **Azure Databricks** | **Delta Lake** | **Unity Catalog** | **CI/CD**
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT.
+
+---
+
+**Proyecto**: Data Engineering — Arquitectura Medallion  
+**Tecnología**: Azure Databricks + Delta Lake + Unity Catalog + dbt + GitHub Actions
