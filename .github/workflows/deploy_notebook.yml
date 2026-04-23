@@ -339,6 +339,36 @@ jobs:
               "email_notifications": {},
               "webhook_notifications": {},
               "environment_key": "dbt-default"
+            },
+            {
+              "task_key": "Update_watermarks",
+              "depends_on": [
+                {
+                  "task_key": "Gold_products"
+                },
+                {
+                  "task_key": "Gold_Persons"
+                },
+                {
+                   "task_key": "Gold_Sales"
+                }
+              ],
+              "run_if": "ALL_SUCCESS",
+              "notebook_task": {
+                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/1.Update_watermarks",
+                "base_parameters": {
+                  "products_date": "{{tasks.Gold_products.values.products_date}}",
+                  "sales_date": "{{tasks.Gold_Sales.values.sales_date}}",
+                  "persons_date": "{{tasks.Gold_Persons.values.person_date}}",
+                  "catalog_name": "smartdata_project",
+                  "schema_name": "raw"
+                },
+                "source": "WORKSPACE"
+              },
+              "timeout_seconds": 0,
+              "email_notifications": {},
+              "webhook_notifications": {},
+              "environment_key": "Raw_ingestion_environment"
             }
           ],
           "git_source": {
