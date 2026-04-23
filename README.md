@@ -27,52 +27,7 @@ Pipeline ETL que transforma datos crudos de ventas diarias, catálogos de produc
 
 ## 🏛️ Arquitectura
 
-### Flujo de Datos
-
-#### 📂 CSV Diarios en ADLS (Raw Data) + Federated SQL Catalog
-    ↓
-#### 🟤 Bronze Layer (Ingesta incremental sin transformación)
-    ↓
-#### 🥈 Silver Layer (Limpieza, validación y estandarización)
-    ↓
-#### 🥇 Gold Layer (Tablas analíticas con MERGE incremental)
-    ↓
-#### 📸 dbt Snapshots (SCD Type 2 — dimensiones históricas)
-    ↓
-#### 📊 BI & Análisis
-
----
-
-### Diagrama completo
-
-```
-Azure Data Lake Storage (ADLS)          Federated SQL Catalog
-   abfss://raw/.../sales/              (dim_products, dim_persons)
-           │                                       │
-           └──────────────┬────────────────────────┘
-                          ▼
-                ┌─────────────────────┐
-                │  0. PrepAmb         │  Catalogs, schemas, volumes
-                └─────────┬───────────┘
-                          ▼
-                ┌─────────────────────┐
-                │  1. Bronze Layer    │  Autoloader + MERGE + watermarks
-                └──────┬──────┬───────┘
-               ┌───────┘      └───────┐
-               ▼                      ▼
-    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-    │  Silver Sales   │    │ Silver Persons  │    │ Silver Products │
-    └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
-             ▼                      ▼                       ▼
-    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-    │   Gold Sales    │    │  Gold Persons   │    │  Gold Products  │
-    └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
-             └──────────────────────┼───────────────────────┘
-                                    ▼
-                      ┌─────────────────────────┐
-                      │  dbt Snapshot (SCD T2)  │
-                      └─────────────────────────┘
-```
+![Arquitectura Medallion](Arquitectura.png)
 
 ---
 
@@ -223,14 +178,6 @@ git push origin main
 - ▶️ Ejecución completa: PrepAmb → Bronze → Silver → Gold → dbt
 - 📧 Notificaciones de resultado por email
 
-### 🖱️ Despliegue Manual desde GitHub
-
-1. Ir al tab **Actions** en GitHub
-2. Seleccionar **Dynamic Databricks Notebook Deploy**
-3. Click en **Run workflow**
-4. Seleccionar rama `main`
-5. Click en **Run workflow**
-
 ### 🔧 Ejecución Local en Databricks
 
 Navegar a `/Workspace/smartdata_project/proceso` y ejecutar en orden:
@@ -310,6 +257,8 @@ PrepAmb
 **Kevin Gonzales Muñoz**
 
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:kevin.gonzales.m@uni.pe)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kevin-jose-gonzales-macedo-9a771420a/)
+[![Phone](https://img.shields.io/badge/Phone-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](tel:+51942886274)
 
 **Data Engineering** | **Azure Databricks** | **Delta Lake** | **Unity Catalog** | **CI/CD**
 
