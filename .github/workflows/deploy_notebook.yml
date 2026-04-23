@@ -64,9 +64,9 @@ jobs:
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
         databricks external-locations create \
-          --name extl-raw \
-          --url "abfss://raw@adlssmartdataeastus2001.dfs.core.windows.net/sales" \
-          --storage-credential-name credential
+          extl-raw \
+          "abfss://raw@adlssmartdataeastus2001.dfs.core.windows.net/sales" \
+          credential
 
     - name: Check if workflow exists and delete if necessary
       run: |
