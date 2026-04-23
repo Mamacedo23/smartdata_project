@@ -55,7 +55,13 @@ jobs:
             "$DEST_HOST/api/2.0/workspace/import")
           echo "Response: $response"
         done
-    
+    - name: Setup External Location
+      run: |
+        databricks external-locations create \
+          --name extl-raw \
+          --url "abfss://raw@adlssmartdataeastus2001.dfs.core.windows.net/sales" \
+          --storage-credential-name credential
+
     - name: Check if workflow exists and delete if necessary
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
