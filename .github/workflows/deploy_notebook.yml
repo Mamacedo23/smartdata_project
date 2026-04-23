@@ -55,7 +55,13 @@ jobs:
             "$DEST_HOST/api/2.0/workspace/import")
           echo "Response: $response"
         done
+    - name: Setup Databricks CLI
+      uses: databricks/setup-cli@main
+
     - name: Setup External Location
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
         databricks external-locations create \
           --name extl-raw \
