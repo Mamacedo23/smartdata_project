@@ -307,7 +307,7 @@ jobs:
                   "dbt snapshot"
                 ],
                 "schema": "gold",
-                "warehouse_id": "f8c640c095dc8cfb",
+                "warehouse_id": "855798cc5e6b302e",
                 "catalog": "smartdata_project",
                 "source": "GIT"
               },
