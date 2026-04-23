@@ -25,7 +25,7 @@ jobs:
           # Cambiado format=SOURCE a format=DBC y la extensión a .dbc
           curl -s -X GET \
             -H "Authorization: Bearer $ORIGIN_TOKEN" \
-            "$ORIGIN_HOST/api/2.0/workspace/export?path=$NOTEBOOK_BASE/$nb&format=DBC" \
+            "$ORIGIN_HOST/api/2.0/workspace/export?path=$NOTEBOOK_BASE/$nb&format=DBC&direct_download=true" \
             --output "notebooks_to_deploy/$nb.dbc"
         done
     
@@ -48,7 +48,7 @@ jobs:
           response=$(curl -s -X POST \
             -H "Authorization: Bearer $DEST_TOKEN" \
             -H "Content-Type: multipart/form-data" \
-            -F "path=$DEST_BASE" \
+            -F "path=$dest_path" \
             -F "format=DBC" \
             -F "overwrite=true" \
             -F "content=@$file" \
