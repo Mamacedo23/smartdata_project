@@ -33,7 +33,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/smartdata_project/proceso/"
+        DEST_BASE="/smartdata_project/proceso"
         for file in notebooks_to_deploy/*.dbc; do
           name=$(basename "$file" .py)
           dest_path="$DEST_BASE/$name"
