@@ -97,7 +97,7 @@ jobs:
               "task_key": "PrepAmb",
               "run_if": "ALL_SUCCESS",
               "notebook_task": {
-                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/PrepAmb/0.Preparacion_Ambiente.ipynb",
+                "notebook_path": "/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/smartdata_project/proceso/0.Preparacion_Ambiente.ipynb",
                 "base_parameters": {
                   "catalog_name": "smartdata_project",
                   "raw_name": "raw",
