@@ -25,7 +25,7 @@ jobs:
           # Cambiado format=SOURCE a format=DBC y la extensión a .dbc
           curl -s -X GET \
             -H "Authorization: Bearer $ORIGIN_TOKEN" \
-            "$ORIGIN_HOST/api/2.0/workspace/export?path=$NOTEBOOK_BASE/$nb&format=DBC"" \
+            "$ORIGIN_HOST/api/2.0/workspace/export?path=$NOTEBOOK_BASE/$nb&format=DBC" \
             --output "notebooks_to_deploy/$nb.dbc"
         done
     
