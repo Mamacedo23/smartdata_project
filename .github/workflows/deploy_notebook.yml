@@ -91,7 +91,29 @@ jobs:
         
         cat > workflow_config.json << 'EOF'
         {
-          "name": "WF_ADB",
+          "name": "smartdata_project_job",
+          "email_notifications": {
+            "on_success": [
+              "kevin.gonzales.m@uni.pe"
+            ],
+            "on_failure": [
+              "kevin.gonzales.m@uni.pe"
+            ],
+            "no_alert_for_skipped_runs": false
+          },
+          "webhook_notifications": {},
+          "notification_settings": {
+            "no_alert_for_skipped_runs": false,
+            "no_alert_for_canceled_runs": false
+          },
+          "timeout_seconds": 0,
+          "trigger": {
+            "pause_status": "UNPAUSED",
+            "file_arrival": {
+              "url": "abfss://raw@adlssmartdataeastus2001.dfs.core.windows.net/sales/"
+            }
+          },
+          "max_concurrent_runs": 1,
           "format": "MULTI_TASK",
           "tasks": [
             {
