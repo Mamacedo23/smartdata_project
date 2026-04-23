@@ -60,7 +60,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        WORKFLOW_NAME="WF_ADB"
+        WORKFLOW_NAME="smartdata_project_prod"
         
         echo "Verificando si existe el workflow: $WORKFLOW_NAME"
         
@@ -82,16 +82,16 @@ jobs:
           echo "No se encontró workflow existente con nombre: $WORKFLOW_NAME"
         fi
     
-    - name: Create Databricks Workflow WF_ADB
+    - name: Create Databricks Workflow smartdata_project_prod
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
         
-        echo "Creando workflow: WF_ADB con Serverless compute"
+        echo "Creando workflow: smartdata_project_prod con Serverless compute"
         
         cat > workflow_config.json << 'EOF'
         {
-          "name": "smartdata_project_job",
+          "name": "smartdata_project_prod",
           "email_notifications": {
             "on_success": [
               "kevin.gonzales.m@uni.pe"
@@ -107,7 +107,7 @@ jobs:
             "no_alert_for_canceled_runs": false
           },
           "trigger": {
-            "pause_status": "PAUSED",
+            "pause_status": "UNPAUSED",
             "file_arrival": {
               "url": "abfss://raw@adlssmartdataeastus2001.dfs.core.windows.net/sales/"
             }
@@ -402,7 +402,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        WORKFLOW_NAME="smartdata_project_job"
+        WORKFLOW_NAME="smartdata_project_prod"
         
         echo "🔍 Validando la configuración del workflow creado..."
         
@@ -433,11 +433,11 @@ jobs:
           exit 1
         fi
     
-    - name: Execute Workflow smartdata_project_job
+    - name: Execute Workflow smartdata_project_prod
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        WORKFLOW_NAME="smartdata_project_job"
+        WORKFLOW_NAME="smartdata_project_prod"
         
         echo "🚀 Ejecutando workflow: $WORKFLOW_NAME"
         
