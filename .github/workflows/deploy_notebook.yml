@@ -338,7 +338,8 @@ jobs:
                 "environment_version": "5"
               }
             }
-          ]
+          ],
+          "performance_target": "PERFORMANCE_OPTIMIZED",
           "schedule": {
             "quartz_cron_expression": "0 0 8 * * ?",
             "timezone_id": "America/Lima",
