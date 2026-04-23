@@ -35,7 +35,7 @@ jobs:
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
         DEST_BASE="/smartdata_project/proceso"
         for file in notebooks_to_deploy/*.dbc; do
-          name=$(basename "$file" .py)
+          name=$(basename "$file" .dbc)
           dest_path="$DEST_BASE/$name"
           echo "Creando carpeta $DEST_BASE si no existe..."
           curl -s -X POST \
@@ -48,7 +48,7 @@ jobs:
           response=$(curl -s -X POST \
             -H "Authorization: Bearer $DEST_TOKEN" \
             -H "Content-Type: multipart/form-data" \
-            -F "path=$dest_path" \
+            -F "path=$DEST_BASE" \
             -F "format=DBC" \
             -F "overwrite=true" \
             -F "content=@$file" \
