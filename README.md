@@ -27,7 +27,7 @@ Pipeline ETL que transforma datos crudos de ventas diarias, catálogos de produc
 
 ## 🏛️ Arquitectura
 
-![Arquitectura Medallion](Arquitectura.png)
+![Arquitectura Medallion](imagenes/smartdata_project_arquitectura.drawio.png)
 
 ---
 
