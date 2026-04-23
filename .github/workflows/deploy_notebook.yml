@@ -21,11 +21,12 @@ jobs:
         NOTEBOOKS=("0.Preparacion_Ambiente" "1.Bronze_Ingestion" "1.Silver_transform_products" "2.Silver_transform_persons" "3.Silver_transform_sales" "1.Gold_Load_products" "2.Gold_Load_persons" "3.Gold_Load_sales")
         mkdir -p notebooks_to_deploy
         for nb in "${NOTEBOOKS[@]}"; do
-          echo "Exportando $nb en modo raw..."
+          echo "Exportando $nb en modo DBC..."
+          # Cambiado format=SOURCE a format=DBC y la extensión a .dbc
           curl -s -X GET \
             -H "Authorization: Bearer $ORIGIN_TOKEN" \
-            "$ORIGIN_HOST/api/2.0/workspace/export?path=$NOTEBOOK_BASE/$nb&format=SOURCE&direct_download=true" \
-            --output "notebooks_to_deploy/$nb.py"
+            "$ORIGIN_HOST/api/2.0/workspace/export?path=$NOTEBOOK_BASE/$nb&format=DBC"" \
+            --output "notebooks_to_deploy/$nb.dbc"
         done
     
     - name: Deploy notebooks to Destination Workspace
@@ -33,7 +34,7 @@ jobs:
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
         DEST_BASE="/smartdata_project/proceso/"
-        for file in notebooks_to_deploy/*.py; do
+        for file in notebooks_to_deploy/*.dbc; do
           name=$(basename "$file" .py)
           dest_path="$DEST_BASE/$name"
           echo "Creando carpeta $DEST_BASE si no existe..."
@@ -43,11 +44,12 @@ jobs:
             -d "{\"path\":\"$DEST_BASE\"}" \
             "$DEST_HOST/api/2.0/workspace/mkdirs"
           echo "Importando $file → $dest_path"
+          # Cambiado format=SOURCE a format=DBC
           response=$(curl -s -X POST \
             -H "Authorization: Bearer $DEST_TOKEN" \
             -H "Content-Type: multipart/form-data" \
             -F "path=$dest_path" \
-            -F "format=SOURCE" \
+            -F "format=DBC" \
             -F "overwrite=true" \
             -F "content=@$file" \
             "$DEST_HOST/api/2.0/workspace/import")
