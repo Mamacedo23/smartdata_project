@@ -11,7 +11,7 @@ bronze = spark.createDataFrame(
 )
 
 silver = (
-    bronze.filter(F.col("importe").isNotNull())
+    bronze.filter(F.col("monto").isNotNull())
     .withColumn("ciudad", F.upper("ciudad"))
     .withColumn("pipeline_version", F.lit(version))
 )
